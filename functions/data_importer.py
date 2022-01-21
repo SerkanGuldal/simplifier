@@ -17,5 +17,4 @@ def data(inputFile, NumberOfVariables):
     return(df, X, y)
 
 
-file_name = 'yeast3_label_class.csv' # Filename needs to be updated!!!!
-NoV = 8 # Number of variables needs to be updated!!!!
+

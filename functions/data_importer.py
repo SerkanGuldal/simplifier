@@ -8,17 +8,14 @@ import os
 
 def data(inputFile, NumberOfVariables):
     file = open(os.path.dirname(__file__) + '/../datasets/' + inputFile)
-   
+    global df
     df=pd.read_csv(file)
     global X
     X = df.values[:,0:NumberOfVariables]
     global y
     y = df.values[:,NumberOfVariables]
-    return(X, y)
+    return(df, X, y)
 
-rawFile = 'yeast3_label_class.csv' # Filename needs to be updated!!!!
+
+file_name = 'yeast3_label_class.csv' # Filename needs to be updated!!!!
 NoV = 8 # Number of variables needs to be updated!!!!
-
-d = data(rawFile, NoV)
-
-print(d)

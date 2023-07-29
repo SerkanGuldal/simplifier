@@ -39,12 +39,12 @@ sheet1 = wb.add_sheet('Sheet 1')
 
 
 
-def data(inputFile, NumberOfVariables): # Data importer function
+def data_importer(inputFile): # Data importer function
     file = open(os.path.dirname(__file__) + '/../datasets/' + inputFile)
     df=pd.read_csv(file)
-    global X
+    NumberOfColumns = len(df.columns)
+    NumberOfVariables = NumberOfColumns - 1 # The last colum is the label/class
     X = df.values[:,0:NumberOfVariables]
-    global y
     y = df.values[:,NumberOfVariables]
     return(X, y)
 
@@ -94,7 +94,6 @@ if __name__ == '__main__':
     print('Number of CPUs available:', mp.cpu_count())
     pool = mp.Pool()
 
-    rawFile = input_file_name # Filename needs to be updated!!!!
     NoV = 8 # Number of variables needs to be updated!!!!
 
     # Column names in output (excel file)
@@ -113,28 +112,21 @@ if __name__ == '__main__':
     sheet1.write(0, 11, 'Arithmetic Mean')
     sheet1.write(0, 12, 'Total time')
 
-files = [] # List of input files
-for i, file in enumerate(os.listdir("datasets")):
-    if file.startswith(rawFile) and i < NoV:
-        files.append(file)
+    files = [] # List of input files
+    for i, file in enumerate(os.listdir("datasets")):
+        if file.startswith(input_file_name) and i < NoV:
+            files.append(file)
 
-for i, file in enumerate(files):
-    print(file)
-
-    data(file, NoV-i-1)
-
-"""
-        if file == '':
-            print('Raw')
-        else:
-            print(file[1:-4])
-
-        data(rawFile + file, NoV)
-        
+    for file in files:
+        print(file)
+        X, y = data_importer(file)
+        print(X)
+        print(y)
+            
         ts = time.time()
 
-        a = [pool.apply_async(ml, args = (X, y, r)) for r in range(1,1501)]
-    
+        a = [pool.apply_async(ml, args = (X, y, r)) for r in range(1,50)]
+        
         score = numpy.array([i.get() for i in a])
         acc = score[:,0]
         aucroc = score[:,1]
@@ -149,16 +141,9 @@ for i, file in enumerate(files):
         aveALL = mean([ mean(acc), mean(aucroc), mean(auc0), mean(auc1), mean(rc), mean(pre), mean(f), mean(sp), mean(sen)])
         duration = time.time() - ts
 
-
         #Writing all results to a file
-        if file == '':
-            sheet1.write(row, 0, 'Raw')
-            data_type = 'Raw'
-        else:
-            sheet1.write(row, 0, file[1:-4])
-            data_type = file[1:-4]
 
-
+        sheet1.write(row, 0, file[1:-4])
         sheet1.write(row, 1, mean(acc))
         sheet1.write(row, 2, mean(aucroc))
         sheet1.write(row, 3, mean(auc0))
@@ -171,12 +156,12 @@ for i, file in enumerate(files):
         sheet1.write(row, 10, mean(geo))
         sheet1.write(row, 11, mean(aveALL))
         sheet1.write(row, 12, mean(duration))
-        wb.save(os.path.dirname(__file__) + '/../datasets/' + rawFile + '_NN.xls')
+        wb.save(os.path.dirname(__file__) + '/../datasets/' + input_file_name + '_NN.xls')
         
         row += 1
 
         if debug:
-            print(rawFile + file + ' is completed. Here is the summary.')
+            print(file + ' is completed. Here is the summary.')
             print("Accuracy:",mean(acc))
             print("Area Under ROC curve:", mean(aucroc))
             print("Area Under the Curve 0:", mean(auc0))
@@ -196,7 +181,7 @@ for i, file in enumerate(files):
             #     for listitem in score:
             #         filehandle.write('%s\n' % listitem)
 
-            prename = os.path.dirname(__file__) + '/../datasets/' + rawFile + '/debug/NN`_' + data_type + '_'
+            prename = os.path.dirname(__file__) + '/../datasets/' + file + '/debug/NN`_' + data_type + '_'
 
             with open(prename + 'Accuracy.csv', 'w') as filehandle:
                 for listitem in acc:
@@ -269,5 +254,3 @@ for i, file in enumerate(files):
     # pyplot.plot(acc)
     # pyplot.plot([mean(acc) for x in range(len(acc))])
     # pyplot.show()
-
-"""

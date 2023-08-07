@@ -1,4 +1,8 @@
 
+import os
+import pandas as pd
+
+
 def data(inputFile): # Data importer function
     file = open(os.path.dirname(__file__) + '/../datasets/' + inputFile)
     df=pd.read_csv(file)
